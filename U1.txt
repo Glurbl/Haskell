@@ -1,0 +1,50 @@
+Aufgabe 3 
+
+
+foo :: int -> [ int ] -> [ int ] 
+foo k _ = [] 
+foo k (x : xs) 
+     | k != x = foo k x ++ xs   // | = Guards sowas wie ein else if statement 
+     | otherwise = xs
+
+Typnamen müssen in Haskell großgeschrieben werden -> Int 
+foo :: Int -> [Int] -> [Int]
+
+k _ sorgt dafür, dass foo k (x : xs) nie ausgeführt wird 
+"_" ist das allgemeinste Pattern und passt auf jede Liste egal ob leer oder nicht
+also -> foo k [] = []
+
+!= in Haskell ist der ungleichsoperator /=
+
+foo k x ++ xs hier wird nicht x sondern die Liste xs erwartet [Int] und x muss danach wieder wieder in die Lsite eingefügt werden -> [x]
+| k /= x    = foo k xs ++ [x]
+
+    Schritt für Schritt:
+    foo 3 [1, 2, 3]
+        k=3, x=1, xs=[2,3]
+        | 3 /= 1 → True
+         = foo 3 [2,3] ++ [1]
+
+foo 3 [2, 3]
+  k=3, x=2, xs=[3]
+  | 3 /= 2 → True
+  = foo 3 [3] ++ [2]
+
+foo 3 [3]
+  k=3, x=3, xs=[]
+  | otherwise → True
+  = []              -- 3 wird entfernt!
+
+-- Ergebnis zusammensetzen:
+[] ++ [2] ++ [1] = [2, 1]
+
+| k /= x    = foo k xs ++ [x]    "++[]" sorgt dafür, dass die Liste in umgekehrter Reihenfolge zurückgegeben wird 
+| k /= x    = x : foo k xs      ":" hängt ein einzelnes Element vorne an eine Liste  1 : [1,2] ->[1,1,2]
+
+
+Korrigierter Code
+foo :: Int -> [Int] -> [Int]
+foo k [] = []
+foo k (x : xs)
+  | k /= x    = x : foo k xs 
+  | otherwise = xs
