@@ -48,3 +48,4 @@ foo k [] = []
 foo k (x : xs)
   | k /= x    = x : foo k xs 
   | otherwise = xs
+  dsdf
