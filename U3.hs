@@ -51,14 +51,106 @@ instance Show State where
     
 
     --Aufgabe 2 
-    update_ready :: State -> State      --Funktion nicht "State " und gibt aktualisiertn State zurück
-    update_ready s = s { new   = nichtDa, ready = ready s ++ angekommen } --kopiert State s und erstetzt new und ready 
-    where (angekommen, nichtDa) = splitByTime (time s) (new s)
-
     --Hilfsfunktion
-    splitByTime :: Int -> [Prozess] -> ([Prozess], [Prozess])
+splitByTime :: Int -> [Prozess] -> ([Prozess], [Prozess])
 splitByTime t [] = ([], [])
 splitByTime t (x:xs)
     | arrival x == t = (x : angekommen, nichtDa)
     | otherwise      = (angekommen, x : nichtDa)
     where (angekommen, nichtDa) = splitByTime t xs
+
+    --Hauptfunktion
+update_ready :: State -> State
+update_ready s = s { new   = nichtDa
+                   , ready = ready s ++ angekommen }
+    where (angekommen, nichtDa) = splitByTime (time s) (new s)
+
+--Aufgabe 3             
+update_run :: State -> State
+update_run s
+    | pid (run s) == "IDLE" && not (null (ready s)) =
+        s { run   = head (ready s)
+          , ready = tail (ready s) }
+    | otherwise = s
+
+                {-zum starten Schritt 1: update_ready testen
+                         let s1 = update_ready start
+
+                Schritt 2: update_run darauf anwenden
+                        let s2 = update_run s1
+                Ausgeben
+                      print s2-}
+
+--Aufgabe 4
+update_time :: State -> State
+update_time s = s { run   = neuerRun
+                  , time  = time s + 1
+                  , chart = chart s ++ pid (run s) ++ " " }
+    where
+        neuzeit  = computing (run s) - 1
+        neuerRun
+            | neuzeit == 0 = idle
+            | otherwise    = (run s) { computing = neuzeit }
+            {-Ausführen: let s1 = update_ready start
+            let s2 = update_run s1
+            let s3 = update_time s2
+            print s3-}
+
+--Aufgabe 5
+
+-- Ein einzelner Schritt
+step :: State -> State
+step s = (update_time . update_run) (update_ready s)
+
+-- Prüft ob alle Prozesse fertig sind
+fertig :: State -> Bool
+fertig s = null (new s)
+        && null (ready s)
+        && pid (run s) == "IDLE"
+
+-- Wiederholt step bis alle fertig sind
+fcfs :: State -> State
+fcfs s
+    | fertig s  = s
+    | otherwise = fcfs (step s) --Ausführen putStrLn (chart (fcfs start))
+
+--Aufgabe 7
+update_ready_sjf :: State -> State
+update_ready_sjf s = s { new   = nichtDa
+                       , ready = sort (ready s ++ angekommen) }
+    where (angekommen, nichtDa) = splitByTime (time s) (new s)
+
+
+
+
+update_ready_srtf :: State -> State
+update_ready_srtf s = s { new   = nichtDa
+                        , run   = neuerRun
+                        , ready = sort neueReady }
+    where
+        (angekommen, nichtDa) = splitByTime (time s) (new s)
+        alleReady  = ready s ++ angekommen
+        neuerRun
+            | not (null alleReady) &&
+              head (sort alleReady) < run s = head (sort alleReady)
+            | otherwise                     = run s
+        neueReady
+            | not (null alleReady) &&
+              head (sort alleReady) < run s = run s : tail (sort alleReady)
+            | otherwise                     = alleReady
+
+step_sjf :: State -> State
+step_sjf = update_time . update_run . update_ready_sjf
+
+sjf :: State -> State
+sjf s
+    | fertig s  = s
+    | otherwise = sjf (step_sjf s)
+
+step_srtf :: State -> State
+step_srtf = update_time . update_run . update_ready_srtf
+
+srtf :: State -> State
+srtf s
+    | fertig s  = s
+    | otherwise = srtf (step_srtf s)
