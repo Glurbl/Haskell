@@ -1,4 +1,4 @@
-
+module U1 where
 foo :: Int -> [Int] -> [Int]
 foo k [] = []
 foo k (x : xs)

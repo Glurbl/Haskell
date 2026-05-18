@@ -1,0 +1,11 @@
+Aufgabe 1
+T0 
+P1 startet -> T 15 000 
+    P2 und P3 bereit //P3 < P2 also P3 zuerst 
+P3 startet, P2 bereit -> T 20 000
+P2 startet -> T 40 000 
+    P4 bereit 
+P4 startet -> T 90 0000 
+    P5 und P6 bereit // P5 < P6 also P5 zuerst 
+P5 startet, P6 bereit -> T 92 000
+P6 startet -> T 102 000
