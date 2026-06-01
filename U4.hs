@@ -27,7 +27,7 @@ ttail  → '+' term ttail | ε
 factor → 'c'
 ftail  → '*' factor ftail | ε-}
 
-matchM :: Char -> Maybe String -> Maybe String
+matchM :: Char -> Maybe String -> Maybe String --prüft ob zeichen passen
 matchM _ Nothing = Nothing  --fehler weitergeben
 matchM c (Just []) = Nothing    --leere eingabe 
 matchM c (Just (x:xs))          
